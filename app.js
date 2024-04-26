@@ -9,6 +9,7 @@ const app = express();
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
+const nodeCron = require('node-cron');
 const fileUpload = require('express-fileupload');
 
 //  routers
@@ -35,10 +36,15 @@ app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5000;
+
+const job = nodeCron.schedule('59 * * * * *', () => {
+  console.log('checking ping...');
+});
+
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_CONNECTION_URL);
-
+    job.start();
     app.listen(port, () =>
       console.log(`🟢 Server is listening on port ${port}...`)
     );
